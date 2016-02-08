@@ -13,6 +13,11 @@ public class Transform {
 		this.inv = minv;
 	}
 	
+	public Transform(Mat4f m) {
+		this.m = m;
+		this.inv = Mat4f.inverse(m);
+	}
+
 	public static Transform rotateZ(double theta){
 		double c = Math.cos(theta);
 		double s = Math.sin(theta);
@@ -69,5 +74,17 @@ public class Transform {
 	}
 	public Transform inverse(){
 		return new Transform(inv, m);
+	}
+
+	public Vec3f transformPoint(Vec3f v){
+		return m.mult(v);
+	}
+	
+	public Vec3f transformNormal(Vec3f v){
+		return inv.transpose().mult(v);
+	}
+
+	public Vec3f getTranslate() {
+		return new Vec3f(m.get(0, 3), m.get(1, 3), m.get(2, 3));
 	}
 }

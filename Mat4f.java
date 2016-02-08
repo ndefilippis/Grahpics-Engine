@@ -142,6 +142,10 @@ public class Mat4f {
 						 m[0][3], m[1][3], m[2][3], m[3][3]);
 	}
 	
+	public double get(int i, int j){
+		return m[i][j];
+	}
+	
 	public String toString(){
 		String r = "[";
 		for(int i = 0; i < 4; i++){
