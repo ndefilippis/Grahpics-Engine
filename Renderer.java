@@ -16,32 +16,48 @@ public class Renderer {
 		bf = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
 	}
 	
-	public BufferedImage render(Shape shape){
+	public BufferedImage renderScene(Shape shape){
+		long time = System.nanoTime();
 		bf = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
 		for(int i = 0; i < depthBuffer.length; i++){
 			depthBuffer[i] = camera.farClippingPlane;
 		}
 		colors = new int[imageHeight*imageWidth];
 		for(int i = 0; i < shape.nFaces/3; i++){
-			
 			Vec3f v0 = shape.verts[shape.faces[3*i]];
 			Vec3f v1 = shape.verts[shape.faces[3*i+1]];
 			Vec3f v2 = shape.verts[shape.faces[3*i+2]];
 			Vec3f v0Normal = shape.norms[shape.faces[3*i]];
 			Vec3f v1Normal = shape.norms[shape.faces[3*i+1]];
 			Vec3f v2Normal = shape.norms[shape.faces[3*i+2]];
+			Vec3f st0 = shape.textures[shape.faces[3*i]];
+			Vec3f st1 = shape.textures[shape.faces[3*i+1]];
+			Vec3f st2 = shape.textures[shape.faces[3*i+2]];
+			render(v0, v1, v2, v0Normal, v1Normal, v2Normal, st0, st1, st2);
+		}
+		return bf;
+	}
+	
+	public void render(Vec3f v0, Vec3f v1, Vec3f v2, Vec3f v0Normal, Vec3f v1Normal, Vec3f v2Normal, Vec3f st0, Vec3f st1, Vec3f st2){
+			Vec3f camDirection = camera.position;			
+			Vec3f v0Camera = camera.getCameraVec(v0);
+			Vec3f v1Camera = camera.getCameraVec(v1);
+			Vec3f v2Camera = camera.getCameraVec(v2);
+			Vec3f faceNormal = v1Camera.sub(v0Camera).cross(v2Camera.sub(v0Camera)).normalize();
 			
+			//backface culling
+			if(faceNormal.dot(camDirection) > 0){
+				return;
+			}
 			Vec3f v0Raster, v1Raster, v2Raster;
 			v0Raster = camera.toRaster(v0);
 			v1Raster = camera.toRaster(v1);
-			v2Raster = camera.toRaster(v2);
+			v2Raster = camera.toRaster(v2);			
 		
 			v0Raster.z = 1/v0Raster.z;
 			v1Raster.z = 1/v1Raster.z;
 			v2Raster.z = 1/v2Raster.z;
-			Vec3f st0 = shape.textures[shape.faces[3*i]];
-			Vec3f st1 = shape.textures[shape.faces[3*i+1]];
-			Vec3f st2 = shape.textures[shape.faces[3*i+2]];
+			
 			st0 = st0.mult(v0Raster.z);
 			st1 = st1.mult(v1Raster.z);
 			st2 = st2.mult(v2Raster.z);
@@ -50,17 +66,16 @@ public class Renderer {
 	        double ymin = Utility.min3(v0Raster.y, v1Raster.y, v2Raster.y); 
 	        double xmax = Utility.max3(v0Raster.x, v1Raster.x, v2Raster.x); 
 	        double ymax = Utility.max3(v0Raster.y, v1Raster.y, v2Raster.y); 
-			
-			if(xmin > imageWidth-1 || xmax < 0 || ymin > imageHeight || ymax < 0 ) continue;
+			if(xmin > imageWidth-1 || xmax < 0 || ymin > imageHeight || ymax < 0 ) return;
 			int x0 = Math.max(0, (int)xmin);
 			int x1 = Math.min(imageWidth, (int)xmax);
 			int y0 = Math.max(0, (int)ymin);
 			int y1 = Math.min(imageHeight, (int)ymax);
-			
 			double area = Utility.edge(v0Raster, v1Raster, v2Raster);
-			
+			int count = 0;
 			for(int y = y0; y <= y1; y++){
 				for(int x = x0; x <= x1; x++){
+					count++;					
 					Vec3f samp = new Vec3f(x+0.5, y+0.5, 0);
 					double w0 = Utility.edge(v1Raster, v2Raster, samp);
 					double w1 = Utility.edge(v2Raster, v0Raster, samp);
@@ -77,23 +92,18 @@ public class Renderer {
 							Vec3f st = st0.mult(w0).add(st1.mult(w1).add(st2.mult(w2)));
 							st = st.mult(z);
 							
-							Vec3f v0Camera, v1Camera, v2Camera;
-							v0Camera = camera.getCameraVec(v0);
-							v1Camera = camera.getCameraVec(v1);
-							v2Camera = camera.getCameraVec(v2);
-							
 							double px = (v0Camera.x/-v0Camera.z) * w0 + (v1Camera.x/-v1Camera.z)*w1+ (v2Camera.x/-v2Camera.z)*w2;
 							double py = (v0Camera.y/-v0Camera.z) * w0 + (v1Camera.y/-v1Camera.z)*w1+ (v2Camera.y/-v2Camera.z)*w2;
 						
 							Vec3f pt = new Vec3f(px*z, py*z, -z);
 							
 							Vec3f n = v0Normal.mult(w0).add(v1Normal.mult(w1).add(v2Normal.mult(w2)));
+							n = camera.getCameraNorm(n);
 							n = n.normalize();
 							Vec3f view = pt.mult(-1);
 							view = view.normalize();
-
-							double nDot = Math.max(0.07, n.dot(view));												
 							
+							double nDot = Math.max(0.07, n.dot(view));
 							colors[y*imageWidth + x] = 0;
 							colors[y*imageWidth + x] ^= (int)(st.x*nDot*255);
 							colors[y*imageWidth + x] ^= (int)(st.y*nDot*255) << 8;
@@ -104,7 +114,5 @@ public class Renderer {
 					}
 				}
 			}
-		}
-		return bf;
 	}
 }

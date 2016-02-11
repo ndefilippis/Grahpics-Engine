@@ -38,7 +38,8 @@ public class Shape {
 			String s = in.readLine();
 			if(s.length() == 0)
 				continue;
-			if(s.substring(0, 2).equals("v ")){
+			String header = s.split(" ")[0];
+			if(header.equals("v")){
 				String[] temp = s.split(" ");
 				double _x = Double.parseDouble(temp[1]);
 				double _y = Double.parseDouble(temp[2]);
@@ -50,9 +51,26 @@ public class Shape {
 			}
 			else if(s.charAt(0) == 'f'){
 				String[] temp = s.split(" ");
-				faces[nFaces++] = Integer.parseInt(temp[1])-1;
-				faces[nFaces++] = Integer.parseInt(temp[2])-1;
-				faces[nFaces++] = Integer.parseInt(temp[3])-1;
+				int[] verticies = new int[temp.length-1];
+				int[] normals  = new int[temp.length-1];;
+				int[] textures = new int[temp.length-1];
+				for(int i = 1; i < temp.length; i++){
+					String[] temp2 = temp[i].split("/");
+					int index = 0;
+					verticies[i-1] = Integer.parseInt(temp2[0])-1;
+					if(temp2.length > 1){
+						normals[i-1] = Integer.parseInt(temp2[1])-1;
+					}
+					if(temp2.length > 2){
+						textures[i-1] = Integer.parseInt(temp2[2])-1;
+					}
+				}
+				int origin = verticies[0];
+				for(int i = 2; i < verticies.length-1; i++){
+					faces[nFaces++] = origin;
+					faces[nFaces++] = verticies[i];
+					faces[nFaces++] = verticies[i+1];
+				}
 			}
 		}
 		computeNormals();
