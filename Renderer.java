@@ -50,15 +50,15 @@ public class Renderer {
 	}
 	
 	public void render(Vec3f v0, Vec3f v1, Vec3f v2, Vec3f v0Normal, Vec3f v1Normal, Vec3f v2Normal, Vec3f st0, Vec3f st1, Vec3f st2){
-			Vec3f camDirection = camera.getCameraVec(camera.position);
-				
+			Vec3f camDirection = camera.getCameraVec(new Vec3f(0, 0, -1)).normalize();
+			
 			Vec3f v0Camera = camera.getCameraVec(v0);
 			Vec3f v1Camera = camera.getCameraVec(v1);
 			Vec3f v2Camera = camera.getCameraVec(v2);
 			Vec3f faceNormal = v1Camera.sub(v0Camera).cross(v2Camera.sub(v0Camera)).normalize();
 			
 			//backface culling
-			if(faceNormal.dot(camDirection) >= 0){
+			if(faceNormal.dot(camDirection) > 0){
 				return;
 			}
 			Vec3f v0Raster, v1Raster, v2Raster;

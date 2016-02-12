@@ -55,7 +55,7 @@ public class RenderTest {
 				cam.worldToCamera = ki.t.mult(cam.worldToCamera);
 				cam.worldToCamera = mi.t.mult(cam.worldToCamera);
 				cam.position = cam.getCameraVec(cam.worldToCamera.inverse().getTranslate());
-				teapot.update(currTime, (currTime - time)/1000000000.0);
+				teapot.update(currTime/1000000000.0, (currTime - time)/1000000000.0);
 				bf = renderer.renderScene(teapot);
 				p.image = bf;
 				p.repaint();

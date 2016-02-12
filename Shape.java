@@ -175,7 +175,6 @@ public class State{
 		Derivative b = evaluate(state, t, dt*0.5, a);
 		Derivative c = evaluate(state, t, dt*0.5, b);
 		Derivative d = evaluate(state, t, dt, c);
-
 		Vec3f nPosition = (a.velocity.add((b.velocity.add(c.velocity).mult(2.0))).add(d.velocity)).mult(1.0/6.0*dt);
 		Vec3f nMomentum = (a.force.add((b.force.add(c.force).mult(2.0))).add(d.force)).mult(1.0/6.0*dt);
 		Quaternion nOrientation = (a.spin.add((b.spin.add(c.spin).mult(2.0))).add(d.spin)).mult(1.0/6.0*dt);
@@ -190,9 +189,9 @@ public class State{
 	public void forces(State state, double t, Derivative output){
 		output.force = state.position.mult(-10);
 		
-		output.force.x += 10* Math.sin(t*0.9+0.5);
-		output.force.y += 11* Math.sin(t*0.5+0.4);
-		output.force.z += 12* Math.sin(t*0.7+0.9);
+		output.force.x = 10* Math.sin(t*0.9+0.5);
+		output.force.y = 11* Math.sin(t*0.5+0.4);
+		output.force.z = 12* Math.sin(t*0.7+0.9);
 		
 		output.torque.x = 1.0*Math.sin(t*0.9+0.5);
 		output.torque.y = 1.1*Math.sin(t*0.5+0.4);
