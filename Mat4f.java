@@ -47,20 +47,6 @@ public class Mat4f {
 		return _ret;
 	}
 	
-	public Mat4f mult(Mat4f m){
-		Mat4f _C = new Mat4f();
-		
-		for(int i = 0; i < 4; i++){
-			for(int j = 0; j < 4; j++){
-				_C.m[i][j] = this.m[i][0] * m.m[0][j] + 
-							 this.m[i][1] * m.m[1][j] + 
-							 this.m[i][2] * m.m[2][j] + 
-							 this.m[i][3] * m.m[3][j];
-			}
-		}
-		return _C;
-	}
-	
 	public static Mat4f inverse(Mat4f m) {
 	    int[] indxc = new int[4], indxr = new int[4];
 	    int[] ipiv = { 0, 0, 0, 0 };
@@ -128,6 +114,20 @@ public class Mat4f {
 	    return new Mat4f(minv);
 	}
 	
+	public Mat4f mult(Mat4f m){
+		Mat4f _C = new Mat4f();
+		
+		for(int i = 0; i < 4; i++){
+			for(int j = 0; j < 4; j++){
+				_C.m[i][j] = this.m[i][0] * m.m[0][j] + 
+							 this.m[i][1] * m.m[1][j] + 
+							 this.m[i][2] * m.m[2][j] + 
+							 this.m[i][3] * m.m[3][j];
+			}
+		}
+		return _C;
+	}
+
 	public Vec3f mult(Vec3f v){
 		double _x = v.x*m[0][0] + v.y*m[0][1] + v.z*m[0][2] + m[0][3];
 		double _y = v.x*m[1][0] + v.y*m[1][1] + v.z*m[1][2] + m[1][3];
@@ -156,4 +156,5 @@ public class Mat4f {
 		}
 		return r.substring(0, r.length()-1)+"]";
 	}
+
 }

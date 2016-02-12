@@ -1,5 +1,5 @@
 
-public class Camera {
+public class Camera{
 	public double t, b, l, r;
 	public double fov;
 	public double nearClippingPlane; 
@@ -68,11 +68,19 @@ public class Camera {
 		return raster;
 	}
 	
+	public void transform(Transform t){
+		worldToCamera = worldToCamera.mult(t);
+	}
+	
 	public Vec3f getCameraVec(Vec3f vec){
 		return worldToCamera.transformPoint(vec);
 	}
 
 	public Vec3f getCameraNorm(Vec3f n) {
 		return worldToCamera.transformNormal(n);
+	}
+
+	public Transform getW2C() {
+		return worldToCamera;
 	}
 }

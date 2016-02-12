@@ -50,8 +50,9 @@ public class Quaternion {
 	}
 	
 	public Quaternion mult(Quaternion q){
-		return q;
-		
+		double _w = w*q.w - xyz.dot(q.xyz);
+		Vec3f _xyz = q.xyz.mult(w).add(xyz.mult(q.w)).add(xyz.cross(q.xyz));
+		return new Quaternion(_xyz, _w);
 	}
 	
 	public double lengthSquared(){

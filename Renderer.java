@@ -16,6 +16,10 @@ public class Renderer {
 		bf = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
 	}
 	
+	public BufferedImage renderScene(){
+		return null;
+	}
+	
 	public BufferedImage renderScene(Shape shape){
 		long time = System.nanoTime();
 		bf = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
@@ -33,20 +37,28 @@ public class Renderer {
 			Vec3f st0 = shape.textures[shape.faces[3*i]];
 			Vec3f st1 = shape.textures[shape.faces[3*i+1]];
 			Vec3f st2 = shape.textures[shape.faces[3*i+2]];
+			v0 = shape.transformVecToWorld(v0);
+			v1 = shape.transformVecToWorld(v1);
+			v2 = shape.transformVecToWorld(v2);
+			
+			v0Normal = shape.transformNormalToWorld(v0Normal);
+			v1Normal = shape.transformNormalToWorld(v1Normal);
+			v2Normal = shape.transformNormalToWorld(v2Normal);
 			render(v0, v1, v2, v0Normal, v1Normal, v2Normal, st0, st1, st2);
 		}
 		return bf;
 	}
 	
 	public void render(Vec3f v0, Vec3f v1, Vec3f v2, Vec3f v0Normal, Vec3f v1Normal, Vec3f v2Normal, Vec3f st0, Vec3f st1, Vec3f st2){
-			Vec3f camDirection = camera.position;			
+			Vec3f camDirection = camera.getCameraVec(camera.position);
+				
 			Vec3f v0Camera = camera.getCameraVec(v0);
 			Vec3f v1Camera = camera.getCameraVec(v1);
 			Vec3f v2Camera = camera.getCameraVec(v2);
 			Vec3f faceNormal = v1Camera.sub(v0Camera).cross(v2Camera.sub(v0Camera)).normalize();
 			
 			//backface culling
-			if(faceNormal.dot(camDirection) > 0){
+			if(faceNormal.dot(camDirection) >= 0){
 				return;
 			}
 			Vec3f v0Raster, v1Raster, v2Raster;

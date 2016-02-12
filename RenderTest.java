@@ -14,7 +14,7 @@ public class RenderTest {
 	static double focal = 20;
 	static double fWidth = 0.980;
 	static double fHeight = 0.735;
-	static Cube teapot;
+	static Shape teapot;
 	static int imageWidth = 640;
 	static int imageHeight = 480;
 	static Mat4f w2c = new Mat4f(1, 0, 0, -1.5,
@@ -23,7 +23,7 @@ public class RenderTest {
 			  					 0, 0, 0, 1);
 
 	public static void main(String[] args) throws IOException, AWTException{
-		teapot = new Cube();
+		teapot = new Shape("B:/Users/Nick/Downloads/teapot.obj");
 		Camera cam = new Camera(near, far, focal, fWidth, fHeight, imageWidth, imageHeight, w2c);
 		Renderer renderer = new Renderer(imageHeight, imageHeight, cam);
 		BufferedImage bf = renderer.renderScene(teapot);
@@ -54,7 +54,7 @@ public class RenderTest {
 				mi.update(MouseInfo.getPointerInfo().getLocation());
 				cam.worldToCamera = ki.t.mult(cam.worldToCamera);
 				cam.worldToCamera = mi.t.mult(cam.worldToCamera);
-				cam.position = cam.worldToCamera.getTranslate();
+				cam.position = cam.getCameraVec(cam.worldToCamera.inverse().getTranslate());
 				teapot.update(currTime, (currTime - time)/1000000000.0);
 				bf = renderer.renderScene(teapot);
 				p.image = bf;
